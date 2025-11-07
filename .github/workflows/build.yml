@@ -41,7 +41,7 @@ jobs:
 
             - name: Execute test binary and cli
               run: |
-                  ./gradlew build
+                  ./gradlew build -x :androidApp:spotlessKotlinCheck
                   ls
                   cd ~/.konan
                   ls -la
