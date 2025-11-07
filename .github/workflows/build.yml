@@ -36,8 +36,6 @@ jobs:
                   key: c-${{ runner.os }}-konan-${{ hashFiles('**/gradle/libs.versions.toml') }}
                   restore-keys: |
                      c-${{ runner.os }}-konan-
-            - name: Setup Gradle
-              uses: gradle/actions/setup-gradle@v5
 
             - name: Execute test binary and cli
               run: |
