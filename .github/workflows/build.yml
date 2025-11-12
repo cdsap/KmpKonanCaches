@@ -67,7 +67,7 @@ jobs:
 
             - name: Execute test binary and cli
               run: |
-                  ./gradlew build -x spotlessKotlinCheck
+                  ./gradlew build -x spotlessKotlinCheck -Dscan.tag.no_caches
                   ls
                   cd ~/.konan
                   ls -la
