@@ -53,13 +53,13 @@ jobs:
               with:
                   distribution: 'temurin'
                   java-version:  ${{ matrix.java }}
-#            - name: 💽 Cache Kotlin Native
-#              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-#              with:
-#                  path: ~/.konan/dependencies/
-#                  key: c-${{ runner.os }}-konan-${{ hashFiles('**/gradle/libs.versions.toml') }}
-#                  restore-keys: |
-#                     c-${{ runner.os }}-konan-
+            - name: 💽 Cache Kotlin Native
+              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+              with:
+                  path: ~/.konan/dependencies/
+                  key: c-${{ runner.os }}-konan-${{ hashFiles('**/gradle/libs.versions.toml') }}
+                  restore-keys: |
+                     c-${{ runner.os }}-konan-
             - name: Setup Gradle
               uses: gradle/actions/setup-gradle@v5
 
@@ -99,19 +99,19 @@ jobs:
               with:
                   distribution: 'temurin'
                   java-version:  ${{ matrix.java }}
-#            - name: 💽 Cache Kotlin Native
-#              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-#              with:
-#                  path: ~/.konan/dependencies/
-#                  key: c-${{ runner.os }}-konan-${{ hashFiles('**/gradle/libs.versions.toml') }}
-#                  restore-keys: |
-#                     c-${{ runner.os }}-konan-
+            - name: 💽 Cache Kotlin Native
+              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+              with:
+                  path: ~/.konan/dependencies/
+                  key: c-${{ runner.os }}-konan-${{ hashFiles('**/gradle/libs.versions.toml') }}
+                  restore-keys: |
+                     c-${{ runner.os }}-konan-
             - name: Setup Gradle
               uses: gradle/actions/setup-gradle@v5
 
             - name: Execute test binary and cli
               run: |
-                  ./gradlew build -x spotlessKotlinCheck -Dscan.tag.setup-gradle
+                  ./gradlew build -x spotlessKotlinCheck -Dscan.tag.konan-dependencies-with-setup-gradle
                   ls
                   cd ~/.konan
                   ls -la
