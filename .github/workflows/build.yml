@@ -111,7 +111,7 @@ jobs:
 
             - name: Execute test binary and cli
               run: |
-                  ./gradlew build -x spotlessKotlinCheck -Dscan.tag.test_1
+                  ./gradlew build -x spotlessKotlinCheck -Dscan.tag.setup-gradle
                   ls
                   cd ~/.konan
                   ls -la
