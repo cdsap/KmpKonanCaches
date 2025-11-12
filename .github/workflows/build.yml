@@ -9,28 +9,28 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  iterations:
-    name: Generate Iterations
-    runs-on: ubuntu-latest
-    outputs:
-      iterations: ${{ steps.calculate_iterations.outputs.iterations }}
-    steps:
-      - id: calculate_iterations
-        shell: bash
-        run: |
-          iters="${{ github.event.inputs.iterations }}"
-          if [ -z "$iters" ]; then iters=20; fi
-
-          list="["
-          for i in $(seq 1 "$iters"); do
-            if [ "$i" -eq 1 ]; then
-              list="$list\"$i\""
-            else
-              list="$list, \"$i\""
-            fi
-          done
-          list="$list]"
-          echo "iterations=$list" >> "$GITHUB_OUTPUT"
+    iterations:
+       name: Generate Iterations
+       runs-on: ubuntu-latest
+       outputs:
+          iterations: ${{ steps.calculate_iterations.outputs.iterations }}
+       steps:
+         - id: calculate_iterations
+           shell: bash
+           run: |
+             iters="${{ github.event.inputs.iterations }}"
+             if [ -z "$iters" ]; then iters=20; fi
+   
+             list="["
+             for i in $(seq 1 "$iters"); do
+               if [ "$i" -eq 1 ]; then
+                 list="$list\"$i\""
+               else
+                 list="$list, \"$i\""
+               fi
+             done
+             list="$list]"
+             echo "iterations=$list" >> "$GITHUB_OUTPUT"
 
 
     build:
