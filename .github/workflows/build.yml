@@ -100,7 +100,6 @@ jobs:
               run: |
                   ./gradlew build -x spotlessKotlinCheck -Dscan.tag.konan--with-setup-gradle
                   ls
-                  cd ~/.konan
-                  ls -la
+                 
               env:
                   DEVELOCITY_ACCESS_KEY: ${{ secrets.GE_TOKEN }}
