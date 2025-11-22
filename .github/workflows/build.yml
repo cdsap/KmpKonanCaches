@@ -19,7 +19,7 @@ jobs:
            shell: bash
            run: |
              iters="${{ github.event.inputs.iterations }}"
-             if [ -z "$iters" ]; then iters=2; fi
+             if [ -z "$iters" ]; then iters=3; fi
    
              list="["
              for i in $(seq 1 "$iters"); do
