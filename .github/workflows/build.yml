@@ -99,7 +99,7 @@ jobs:
             - name: Execute test binary and cli
               run: |
                   ./gradlew build -x spotlessKotlinCheck -Dscan.tag.konan--with-setup-gradle
-                  ls
+                 
                  
               env:
                   DEVELOCITY_ACCESS_KEY: ${{ secrets.GE_TOKEN }}
