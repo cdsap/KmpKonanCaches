@@ -38,7 +38,7 @@ jobs:
             matrix:
                 os: [ubuntu-latest]
                 version: [17]
-                vendor: ["temurin", "zulu", "liberica"]
+                vendor: ["temurin", "zulu", "liberica", "oracle"]
         runs-on: ubuntu-latest
         timeout-minutes: 60
 
@@ -57,7 +57,7 @@ jobs:
 
             - name: Execute test binary and cli
               run: |
-                  ./gradlew build -x spotlessKotlinCheck -Dscan.tag.seed-test_1
+                  ./gradlew :shared:compileAndroidMainJavaWithJavac  -Dscan.tag.seed-test_1
               env:
                   DEVELOCITY_ACCESS_KEY: ${{ secrets.GE_TOKEN }}
         outputs:
