@@ -53,7 +53,7 @@ jobs:
               uses: actions/setup-java@v5
               with:
                   distribution: ${{ matrix.vendor }}
-                  java-version:  ${{ matrix.java }}
+                  java-version:  ${{ matrix.version }}
 
             - name: Execute test binary and cli
               run: |
