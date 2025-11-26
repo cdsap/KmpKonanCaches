@@ -35,7 +35,7 @@ kotlin {
         namespace = "com.example.fruitties"
         compileSdk = 36
         minSdk = 26
-
+        withJava()
         withHostTestBuilder {
         }
 
