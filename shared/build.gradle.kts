@@ -21,6 +21,7 @@ plugins {
     alias(libs.plugins.skie)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    id("org.gradle.android.cache-fix")
 }
 
 kotlin {

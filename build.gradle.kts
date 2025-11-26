@@ -23,6 +23,7 @@ plugins {
     alias(libs.plugins.spotless) apply false
     alias(libs.plugins.androidKmpLibrary) apply false
     alias(libs.plugins.kotlinxSerialization) apply false
+    id("org.gradle.android.cache-fix") version "3.0.2" apply false
 }
 
 subprojects {
