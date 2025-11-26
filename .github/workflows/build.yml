@@ -46,7 +46,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v5
 
-            - uses: cdsap/build-process-watcher@v0.4
+            - uses: cdsap/build-process-watcher@v0.4.0
               with:
                 remote_monitoring: 'true'
             - name: Set up JDK ${{ matrix.java }}
