@@ -45,11 +45,9 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v5
 
-            - uses: cdsap/build-process-watcher@0.4.0
+            - uses: cdsap/build-process-watcher@v0.4.0
               with:
-                remote_monitoring: 'true'
-                backend_url: https://build-process-watcher-backend-staging-148219958728.us-central1.run.app
-                frontend_url: https://process-watcher-staging-c5bd6.web.app
+                remote_monitoring: true
                 collect_gc: true
                 
             - name: Set up JDK ${{ matrix.java }}
