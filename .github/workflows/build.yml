@@ -19,7 +19,7 @@ jobs:
            shell: bash
            run: |
              iters="${{ github.event.inputs.iterations }}"
-             if [ -z "$iters" ]; then iters=3; fi
+             if [ -z "$iters" ]; then iters=10; fi
    
              list="["
              for i in $(seq 1 "$iters"); do
@@ -84,9 +84,10 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v5
 
-            - uses: cdsap/build-process-watcher@0.4
+            - uses: cdsap/build-process-watcher@v0.4.0
               with:
-                remote_monitoring: 'true'
+                remote_monitoring: true
+                collect_gc: true
             - name: Set up JDK ${{ matrix.java }}
               uses: actions/setup-java@v5
               with:
