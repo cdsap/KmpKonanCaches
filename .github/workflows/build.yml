@@ -4,105 +4,82 @@ on:
     push:
         branches: [ test_1]
     pull_request:
-concurrency:
-    group: build-${{ github.ref }}
-    cancel-in-progress: true
 
 jobs:
-    iterations:
-       name: Generate Iterations
-       runs-on: ubuntu-latest
-       outputs:
-          iterations: ${{ steps.calculate_iterations.outputs.iterations }}
-       steps:
-         - id: calculate_iterations
-           shell: bash
-           run: |
-             iters="${{ github.event.inputs.iterations }}"
-             if [ -z "$iters" ]; then iters=1; fi
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Artifact Cache Configuration
+      ARTIFACT_CACHE_CLI_VERSION: 0.10.0
+      ARTIFACT_CACHE_IMAGE: sample-gradle
+      # Develocity
+      DV_SERVER: https://34-105-101-54.nip.io/
+      DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
+      # Artifact Cache CLI
+      ARTIFACT_CACHE_REPO_USERNAME: ${{ secrets.ARTIFACT_CACHE_REPO_USERNAME }}
+      ARTIFACT_CACHE_REPO_PASSWORD: ${{ secrets.ARTIFACT_CACHE_REPO_PASSWORD }}
+      ARTIFACT_CACHE_REPO: https://gradlecom.jfrog.io/artifactory/develocity-artifact-cache-cli-libs-releases-local
+      # Misc
+      ARTIFACT_CACHE_CLI_FILENAME: develocity-artifact-cache-cli
+      ARTIFACT_CACHE_OPTS: "--gradle-home=/home/runner/.gradle"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-             list="["
-             for i in $(seq 1 "$iters"); do
-               if [ "$i" -eq 1 ]; then
-                 list="$list\"$i\""
-               else
-                 list="$list, \"$i\""
-               fi
-             done
-             list="$list]"
-             echo "iterations=$list" >> "$GITHUB_OUTPUT"
+      - name: Setup Java (Required for Artifact Cache)
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
 
-    seed:
-        needs: iterations
-        strategy:
-            matrix:
-                os: [ubuntu-latest]
-                version: [17]
-                vendor: ["temurin", "zulu", "liberica", "oracle"]
-        runs-on: ubuntu-latest
-        timeout-minutes: 60
+      - name: Provision and configure Artifact Cache
+        shell: bash
+        run: |
+          TOOL_DIR="${{ runner.tool_cache }}/develocity/artifact-cache/${{ env.ARTIFACT_CACHE_CLI_VERSION }}"
+          JAR_PATH="$TOOL_DIR/${{ env.ARTIFACT_CACHE_CLI_FILENAME }}.jar"
+          mkdir -p "$TOOL_DIR"
+          
+          # Download if not present
+          if [ ! -f "$JAR_PATH" ]; then
+            echo "Downloading Artifact Cache CLI v${{ env.ARTIFACT_CACHE_CLI_VERSION }}..."
+            curl --location --fail --silent --show-error \
+              --connect-timeout 5 --max-time 30 \
+              --retry 3 --retry-delay 3 --retry-max-time 60 \
+              --user "$ARTIFACT_CACHE_REPO_USERNAME:$ARTIFACT_CACHE_REPO_PASSWORD" \
+              "${{ env.ARTIFACT_CACHE_REPO }}/com/gradle/${{ env.ARTIFACT_CACHE_CLI_FILENAME }}/${{ env.ARTIFACT_CACHE_CLI_VERSION }}/${{ env.ARTIFACT_CACHE_CLI_FILENAME }}-${{ env.ARTIFACT_CACHE_CLI_VERSION }}.jar" \
+              --output "$JAR_PATH"
+          fi
+          
+          CMD="${{ env[format('JAVA_HOME_21_{0}', runner.arch)] }}/bin/java -jar $JAR_PATH"
+          echo "ARTIFACT_CACHE_CMD=$CMD" >> $GITHUB_ENV
+          
+          CMD_OPTS="--dv-server=$DV_SERVER ${ARTIFACT_CACHE_IMAGE:+--image-name=$ARTIFACT_CACHE_IMAGE} $ARTIFACT_CACHE_OPTS"
+          echo "ARTIFACT_CACHE_CMD_OPTS=$CMD_OPTS" >> $GITHUB_ENV
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v5
+      - name: Restore from Artifact Cache
+        id: restore_cache
+        run: $ARTIFACT_CACHE_CMD restore $ARTIFACT_CACHE_CMD_OPTS
 
-            - uses: cdsap/build-process-watcher@v0.4.0
-              with:
-                remote_monitoring: 'true'
-            - name: Set up JDK ${{ matrix.java }}
-              uses: actions/setup-java@v5
-              with:
-                  distribution: ${{ matrix.vendor }}
-                  java-version:  ${{ matrix.version }}
+      - name: Warn on Cache Restore Failure
+        if: steps.restore_cache.outcome == 'failure'
+        run: 'echo "WARNING: Could not restore the Artifact Cache. The build will proceed but may be slower."'
 
-            - name: Execute test binary and cli
-              run: |
-                  ./gradlew :shared:compileAndroidMainJavaWithJavac  -Dscan.tag.seed-test_1
-              env:
-                  DEVELOCITY_ACCESS_KEY: ${{ secrets.GE_TOKEN }}
-        outputs:
-          iterations: ${{ needs.iterations.outputs.iterations }}
+      - name: Build project
+        run: ./gradlew build -x spotlessKotlinCheck
 
+      - name: Store to Artifact Cache
+        if: success()
+        id: store_cache
+        continue-on-error: true
+        run: $ARTIFACT_CACHE_CMD store $ARTIFACT_CACHE_CMD_OPTS
 
+      - name: Warn on Cache Store Failure
+        if: steps.store_cache.outcome == 'failure'
+        run: 'echo "WARNING: Failed to store in the Artifact Cache."'
 
-
-    build:
-        needs: seed
-        strategy:
-            matrix:
-                java: [17]
-                run: ${{ fromJson(needs.seed.outputs.iterations) }}
-
-        runs-on: ubuntu-latest
-        timeout-minutes: 60
-
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v5
-
-            - uses: cdsap/build-process-watcher@0.3
-              with:
-                remote_monitoring: 'true'
-            - name: Set up JDK ${{ matrix.java }}
-              uses: actions/setup-java@v5
-              with:
-                  distribution: 'temurin'
-                  java-version:  ${{ matrix.java }}
-            - name: 💽 Cache Kotlin Native
-              uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-              with:
-                  path: ~/.konan/
-                  key: d-${{ runner.os }}-konan-${{ hashFiles('**/gradle/libs.versions.toml') }}
-                  restore-keys: |
-                     d-${{ runner.os }}-konan-
-            - name: Setup Gradle
-              uses: gradle/actions/setup-gradle@v5
-
-            - name: Execute test binary and cli
-              run: |
-                  ./gradlew build -x spotlessKotlinCheck -Dscan.tag.konan--with-setup-gradle
-                  ls
-                  cd ~/.konan
-                  ls -la
-              env:
-                  DEVELOCITY_ACCESS_KEY: ${{ secrets.GE_TOKEN }}
+      - name: Persist Artifact Cache Logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-cache.log
+          path: '~/.develocity/artifact-cache/artifact-cache.log'
+          retention-days: 7
