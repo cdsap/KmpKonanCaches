@@ -18,7 +18,7 @@ jobs:
       # Artifact Cache CLI
       ARTIFACT_CACHE_REPO_USERNAME: ${{ secrets.ARTIFACT_CACHE_REPO_USERNAME }}
       ARTIFACT_CACHE_REPO_PASSWORD: ${{ secrets.ARTIFACT_CACHE_REPO_PASSWORD }}
-      ARTIFACT_CACHE_REPO: https://gradlecom.jfrog.io/artifactory/develocity-artifact-cache-cli-libs-releases-local
+      ARTIFACT_CACHE_REPO: https://gradlecom.jfrog.io/artifactory/develocity-artifact-cache-cli-libs-releases
       # Misc
       ARTIFACT_CACHE_CLI_FILENAME: develocity-artifact-cache-cli
       ARTIFACT_CACHE_OPTS: "--gradle-home=/home/runner/.gradle"
