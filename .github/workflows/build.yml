@@ -13,7 +13,7 @@ jobs:
       ARTIFACT_CACHE_CLI_VERSION: 0.10.0
       ARTIFACT_CACHE_IMAGE: sample-gradle
       # Develocity
-      DV_SERVER: https://34-105-101-54.nip.io/
+      DV_SERVER: https://34-82-89-171.nip.io/
       DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
       # Artifact Cache CLI
       ARTIFACT_CACHE_REPO_USERNAME: ${{ secrets.ARTIFACT_CACHE_REPO_USERNAME }}
