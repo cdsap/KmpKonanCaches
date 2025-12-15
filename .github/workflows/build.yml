@@ -47,7 +47,8 @@ jobs:
 
             - uses: cdsap/build-process-watcher@v0.4.1
               with:
-                remote_monitoring: "true"
+                remote_monitoring: true
+                debug: true
         
                 
             - name: Set up JDK ${{ matrix.java }}
