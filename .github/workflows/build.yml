@@ -59,7 +59,7 @@ jobs:
           
             - name: Execute test binary and cli
               run: |
-                  ./gradlew help
+                  ./gradlew build
               env:
                   DEVELOCITY_ACCESS_KEY: ${{ secrets.GE_TOKEN }}
         outputs:
